@@ -1,0 +1,36 @@
+name: POMO_att_ablation
+device: cuda:1
+logger: wandb # [wandb, no_logger]
+val_filename: data/vrp100_val.pkl
+test_filename: data/vrp_mixed100_1000_seed1234.pkl # [data/vrp100_test_seed1234.pkl]
+vrplib_set: XXL # [XXL, X]
+# load_checkpoint: RS_cvrp_locality_bias/model_epoch_99.pt
+# load_checkpoint: weights/RS_att_cvrp_locality_bias_-ts7-4-23-16-1/model_epoch_13.pt
+# load_checkpoint: weights/RS_att_cvrp_learn_bias_polar_unselected_-ts7-8-14-35-25/model_epoch_36.pt
+# load_checkpoint: weights/RS_att_cvrp_learn_bias_polar_-ts7-8-12-45-36/model_epoch_19.pt
+load_checkpoint:
+params:
+  problem_size: 500
+  fixed_size: rule_based # [fixed, varying, rule_based]
+  multiple_width: 100
+  keep_num: 20
+  alg: pomo # [pomo, risk_seeking]
+  train_steps: 300000
+  inner_steps: 1
+  train_batch_size: 120
+  test_size: 1000
+  test_batch_size: 1000
+  learning_rate: 0.0001
+  log_step: 10000
+model_params:
+  set_mlp: False
+  bias: learn # [learn, dis, no]
+  encoder_mask: False
+  penalty: -1
+  local_size: 100
+  embedding_dim: 128
+  encoder_layer_num: 6
+  head_num: 8
+  qkv_dim: 16
+  logit_clipping: 50
+  ff_hidden_dim: 512
