@@ -1,6 +1,5 @@
 # ELG
 This repository is the code of https://arxiv.org/abs/2308.14104. 
-
 Our code is built on the code of POMO[1] and Omni-VRP[2]. We provide the varying-scale and meta-trained models to reproduce the test results in the paper.  
 
 ## Test ELG* on VRPLIB[3, 5]
