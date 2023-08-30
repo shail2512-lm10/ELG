@@ -47,7 +47,7 @@ python train.py
 
 ## Test ELG*-meta on Specified distributions
 
-The rotation (1000, R) and explosion (1000,E) test sets are obtained from the source code of Omni-VRP[2]. 
+The rotation (1000, R) and explosion (1000,E) test sets in the paper are obtained from the source code of Omni-VRP[2]. 
 
 Under the ELG/CVRP-meta folder, run
 
