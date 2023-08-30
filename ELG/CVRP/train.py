@@ -83,36 +83,11 @@ keep_num, lr, device, alg, logger, fileLogger, dir_path, log_step):
                 # varying problem size of training samples
                 true_problem_size = np.random.randint(100, problem_size)
                 true_batch_size = int(train_batch_size * ((100 / true_problem_size)**1.6))
-        
-        # elif size == 'scheduler':
-        #     if i <= 200000 - start_steps:
-        #         if i == 0:
-        #             alpha = np.ones(3)
-        #             x = (np.arange(0, 401) / 100)[:, None]
-        #             factor = np.array([2.0, 1.5, 1.0])
-        #             zeros = np.zeros((401, 1))
-        #             scale_1 = np.max(np.concatenate([1 - 0.5 * x, zeros], axis=1), axis=1)
-        #             scale_3 = np.max(np.concatenate([-1 + 0.5 * x, zeros], axis=1), axis=1)
-        #             scale_2 = np.concatenate([(0.5 * x)[:200], (2 - 0.5 * x)[200:]], axis=0).squeeze(1)
-        #             alpha_ = alpha
-        #         true_problem_size = 100
-        #         true_batch_size = train_batch_size
-        #     else:
-        #         if i % log_step == 0:
-        #             diff = factor * (cost - best_cost)
-        #             alpha_ = alpha * np.exp(diff) 
-        #             alpha_ = alpha_ / np.sum(alpha_)
-
-        #         scale_dis = (alpha_[0] * scale_1 + alpha_[1] * scale_2 + alpha_[2] * scale_3) 
-        #         scale_dis = torch.tensor(scale_dis / np.sum(scale_dis))
-        #         true_problem_size = scale_dis.multinomial(1) + 100
-        #         true_batch_size = int(train_batch_size * ((100 / true_problem_size)**1.6))
                 
         batch = generate_vrp_data(dataset_size=true_batch_size, problem_size=true_problem_size)
         env.load_random_problems(batch)
         reset_state, _, _ = env.reset()
         for j in range(inner_steps):
-            # print(model.aggregation.data)
             model.pre_forward(reset_state)
             solutions, probs, rewards = rollout(model=model, env=env, eval_type='sample')
             # check feasible
@@ -173,8 +148,6 @@ if __name__ == "__main__":
     with open('config.yml', 'r', encoding='utf-8') as config_file:
         config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
 
-    seed_everything(924)
-
     # params
     name = config['name']
     device = "cuda:{}".format(config['cuda_device_num']) if config['use_cuda'] else 'cpu'
@@ -193,9 +166,10 @@ if __name__ == "__main__":
     log_step = config['params']['log_step']
     model_params = config['model_params']
 
+    seed_everything(config['seed'])
     ts = datetime.datetime.utcnow() + datetime.timedelta(hours=+8)
     ts_name = f'-ts{ts.month}-{ts.day}-{ts.hour}-{ts.minute}-{ts.second}'
-    dir_path = 'weights/{}_{}'.format(name, ts_name)
+    dir_path = 'weights/{}_{}_{}'.format(name, ts_name, config['seed'])
     os.mkdir(dir_path)
 
     log_config = config.copy()
@@ -214,7 +188,7 @@ if __name__ == "__main__":
         log_config.pop('model_params')
         log_config.update(param_config)
         log_config.update(model_params_config)
-        logger = wandb.init(project="ClusterModel",
+        logger = wandb.init(project="ELG-CVRP",
                          name=name + ts_name,
                          config=log_config)
     else:
@@ -228,16 +202,7 @@ if __name__ == "__main__":
         model = CVRPModel_local(**model_params)
     elif config['training'] == 'joint':
         model = CVRPModel(**model_params)
-    # elif config['training'] == 'ensemble':
-    #     model = CVRPModel_ens(**model_params)
-    #     checkpoint_local = torch.load("weights/local_k100_-ts7-29-15-15-29/model_epoch_16.pt", map_location=device)
-    #     checkpoint_global = torch.load("weights/model_global.pt", map_location=device)
-    #     model.local_policy.load_state_dict(checkpoint_local['model_state_dict'])
-    #     model.global_policy.load_state_dict(checkpoint_global['model_state_dict'])
-    #     for name, param in model.named_parameters():
-    #         if "aggregation" not in name:
-    #             param.requires_grad = False
-
+    
     if load_checkpoint is not None:
         checkpoint = torch.load(load_checkpoint, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])

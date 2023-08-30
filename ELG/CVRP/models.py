@@ -173,21 +173,9 @@ class CVRP_Decoder(nn.Module):
         self.Wk = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         self.Wv = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         if self.model_params['ensemble'] == 'learn':
-            if self.model_params['ensemble_size'] == 1:
-                self.local_policy_0 = local_policy(self.model_params, idx=0)
-                self.local_policy_0.zero_init()
-            elif self.model_params['ensemble_size'] == 2:
-                self.local_policy_0 = local_policy(self.model_params, idx=0)
-                self.local_policy_1 = local_policy(self.model_params, idx=1)
-                self.local_policy_0.zero_init()
-                self.local_policy_1.zero_init()
-            elif self.model_params['ensemble_size'] == 3:
-                self.local_policy_0 = local_policy(self.model_params, idx=0)
-                self.local_policy_1 = local_policy(self.model_params, idx=1)
-                self.local_policy_2 = local_policy(self.model_params, idx=2)
-                self.local_policy_0.zero_init()
-                self.local_policy_1.zero_init()
-                self.local_policy_2.zero_init()
+            self.local_policies = nn.ModuleList([local_policy(self.model_params, idx=i) for i in range(self.model_params['ensemble_size'])])
+            for policy in self.local_policies:
+                policy.zero_init()
 
         self.multi_head_combine = nn.Linear(head_num * qkv_dim, embedding_dim)
 
@@ -253,17 +241,10 @@ class CVRP_Decoder(nn.Module):
 
         score_scaled = score / sqrt_embedding_dim
         if self.model_params['ensemble'] == 'learn':
-            if self.model_params['ensemble_size'] == 1:
-                score_local = self.local_policy_0(cur_theta, cur_dist, ins_feature)
-            elif self.model_params['ensemble_size'] == 2:
-                 score_local_0 = self.local_policy_0(cur_theta, cur_dist, ins_feature)
-                 score_local_1 = self.local_policy_1(cur_theta, cur_dist, ins_feature)
-                 score_local = (score_local_0 + score_local_1) / 2
-            elif self.model_params['ensemble_size'] == 3:
-                 score_local_0 = self.local_policy_0(cur_theta, cur_dist, ins_feature)
-                 score_local_1 = self.local_policy_1(cur_theta, cur_dist, ins_feature)
-                 score_local_2 = self.local_policy_2(cur_theta, cur_dist, ins_feature)
-                 score_local = (score_local_0 + score_local_1 + score_local_2) / 3
+            score_local = 0.
+            for policy in self.local_policies:
+                score_local += policy(cur_theta, cur_dist, ins_feature)
+            score_local = score_local / self.model_params['ensemble_size']
             score_scaled += score_local
             # shape: (batch, pomo, problem)
         elif self.model_params['ensemble'] == 'dis':
