@@ -57,7 +57,7 @@ class TSPLib_Tester:
         self.model = TSPModel(**model_params)
         checkpoint = torch.load(load_checkpoint, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
-        self.tsplib_path = 'TSPLib'
+        self.tsplib_path = 'TSPLib/TSPLib'
         self.repeat_times = 1
         self.aug_factor = config['params']['aug_factor']
         self.tsplib_results = None
@@ -73,6 +73,7 @@ class TSPLib_Tester:
                 name = name[:-4]
                 instance_file = self.tsplib_path + '/' + name + '.pkl'
                 # load tsplib file
+                print(instance_file)
                 with open(instance_file, 'rb') as f:
                     instance = pickle.load(f)  
                     optimal = instance[1]
