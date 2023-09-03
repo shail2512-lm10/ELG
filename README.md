@@ -18,7 +18,7 @@ First, generate the validation sets by
 python generate_data.py
 ```
 
-Modify the *load_checkpoint* term in *config.yml* to None (i.e., *load_checkpoint*: ), and run
+Modify the *load_checkpoint* term in *config.yml* to Null (i.e., *load_checkpoint*: ), and run
 
 ```
 python train.py
@@ -40,7 +40,7 @@ First, generate the validation sets by
 python generate_data.py
 ```
 
-Modify the *load_checkpoint* term in *config.yml* to None (i.e., *load_checkpoint*: ), and run
+Modify the *load_checkpoint* term in *config.yml* to Null (i.e., *load_checkpoint*: ), and run
 
 ```
 python train.py
