@@ -158,7 +158,7 @@ class TSP_Decoder(nn.Module):
         self.multi_head_combine = nn.Linear(head_num * qkv_dim, embedding_dim)
         if self.model_params['ensemble'] == 'learn':
             self.local_policy_0 = local_policy(self.model_params)
-            self.local_policy_0.zero_init()
+
         self.k = None  # saved key, for multi-head attention
         self.v = None  # saved value, for multi-head_attention
         self.single_head_key = None  # saved, for single-head attention
