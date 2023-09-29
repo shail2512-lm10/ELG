@@ -255,7 +255,6 @@ class CVRP_Decoder(nn.Module):
         self.Wv = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         if self.model_params['ensemble'] == True:
             self.edge_net = LocalPolicy(self.model_params)
-            self.edge_net.zero_init()
             
         self.multi_head_combine = nn.Linear(head_num * qkv_dim, embedding_dim)
 
