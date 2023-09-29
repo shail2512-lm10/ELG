@@ -174,8 +174,6 @@ class CVRP_Decoder(nn.Module):
         self.Wv = nn.Linear(embedding_dim, head_num * qkv_dim, bias=False)
         if self.model_params['ensemble'] == 'learn':
             self.local_policies = nn.ModuleList([local_policy(self.model_params, idx=i) for i in range(self.model_params['ensemble_size'])])
-            for policy in self.local_policies:
-                policy.zero_init()
 
         self.multi_head_combine = nn.Linear(head_num * qkv_dim, embedding_dim)
 
