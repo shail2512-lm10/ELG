@@ -147,7 +147,7 @@ class VRPLib_Tester:
         self.model.pre_forward(reset_state)
 
         with torch.no_grad():
-            _, _, rewards = rollout(self.model, env, 'greedy')
+            actions, _, rewards = rollout(self.model, env, 'greedy')
 
         # Return
         aug_reward = rewards.reshape(self.aug_factor, 1, env.multi_width)
@@ -164,7 +164,9 @@ class VRPLib_Tester:
             result_dict['best_cost'] = best_cost.cpu().numpy().tolist()[0]
             result_dict['scale'] = problem_size
             result_dict['gap'] = (result_dict['best_cost'] - optimal) / optimal
-            # print(best_cost)
+            result_dict['actions'] = actions
+            print(f"best_cost: {best_cost}")
+            print(f"route: {actions}")
 
 
 if __name__ == "__main__":
