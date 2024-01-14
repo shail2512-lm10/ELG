@@ -8,7 +8,7 @@ vrplib_set: X     # [XXL, X]
 load_checkpoint: weights/ELG.pt
 # load_checkpoint: 
 training: joint # [joint, only_local]
-seed: 924
+seed: 2022
 params:
   problem_size: 500
   size: varying     # [small, varying]

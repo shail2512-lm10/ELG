@@ -9,7 +9,7 @@ import vrplib
 from generate_data import generate_vrp_data, VRPDataset
 from CVRPModel import CVRPModel
 from CVRPEnv import CVRPEnv
-from utils import rollout, check_feasible, Logger
+from utils import rollout, check_feasible, Logger, seed_everything
 
 
 def predict(model, instance, env, aug_factor, eval_type):
@@ -26,11 +26,11 @@ def predict(model, instance, env, aug_factor, eval_type):
         solutions, probs, rewards = rollout(model=model, env=env, eval_type=eval_type)
 
     # Return
-    aug_reward = rewards.reshape(aug_factor, batch['loc'].shape[0], env.multi_width)
+    aug_reward = rewards.reshape(aug_factor, env.multi_width)
     # shape: (augmentation, batch, pomo)
-    max_pomo_reward, _ = aug_reward.max(dim=2)  # get best results from pomo
+    max_pomo_reward, _ = aug_reward.max(dim=1)  # get best results from pomo
     # shape: (augmentation, batch)
-    no_aug_cost = -max_pomo_reward[0, :].float()  # negative sign to make positive value
+    no_aug_cost = -max_pomo_reward.float()  # negative sign to make positive value
     no_aug_cost_mean = no_aug_cost.mean()
 
     max_aug_pomo_reward, _ = max_pomo_reward.max(dim=0)  # get best results from augmentation
@@ -47,7 +47,7 @@ def predict(model, instance, env, aug_factor, eval_type):
 
     print("Aug cost: {:.2f}".format(aug_cost_mean))
     print("no aug Avg cost: {:.2f}, Wall-clock time: {:.2f}s".format(no_aug_cost_mean, float(end - start)))
-    print(f"Best solution: {best_sols}")
+    print(f"Best solution: {best_sols[0][0].tolist()}")
     
     return avg_cost
 
@@ -66,6 +66,9 @@ if __name__ == "__main__":
     model_params = config['model_params']
     aug_factor = config['params']['aug_factor']
     eval_type = config['params']['eval_type']
+    seed = config['seed']
+
+    seed_everything(seed=seed)
 
     # load checkpoint
     model = CVRPModel(**model_params)
