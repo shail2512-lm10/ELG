@@ -53,7 +53,7 @@ def predict(model, instance, env, aug_factor, eval_type):
 
 
 if __name__ == "__main__":
-    with open('config.yml', 'r', encoding='utf-8') as config_file:
+    with open('ELG/CVRP/config.yml', 'r', encoding='utf-8') as config_file:
         config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
 
     # params
